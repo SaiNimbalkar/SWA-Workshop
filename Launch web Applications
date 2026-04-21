@@ -1,0 +1,85 @@
+Login to PythonAnywhere
+
+Go to https://www.pythonanywhere.com
+Login with your account from the previous practical
+
+
+STEP 2: Open Bash Console
+
+Click Consoles tab
+Click Bash
+Terminal opens ✅
+
+
+STEP 3: Create App 1 — Hello World App
+bashmkdir app1
+cd app1
+bashcat > main.py << 'EOF'
+from flask import Flask
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return '<h1>App 1 - Hello World!</h1><p>Launched using GAE Launcher Alternative.</p>'
+
+if __name__ == '__main__':
+    app.run()
+EOF
+bashcat > requirements.txt << 'EOF'
+flask
+EOF
+bashpip install flask --user
+
+STEP 4: Create App 2 — Student Info App
+bashcd ~
+mkdir app2
+cd app2
+bashcat > main.py << 'EOF'
+from flask import Flask
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return '<h1>Student Web App</h1>'
+
+@app.route('/info')
+def info():
+    return '''
+    <h1>Student Information</h1>
+    <p>Name: Your Name</p>
+    <p>Class: TY Computer Science</p>
+    <p>College: Your College Name</p>
+    '''
+
+@app.route('/hello/<name>')
+def hello(name):
+    return f'<h1>Hello, {name}! Welcome to my App.</h1>'
+
+if __name__ == '__main__':
+    app.run()
+EOF
+
+STEP 5: Deploy App 1 on PythonAnywhere
+
+Click Web tab → Add a new web app
+Click Next
+Select Flask
+Select Python 3.10
+Set path as: /home/yourusername/app1/main.py
+Click Next
+Click Reload (green button)
+Open: yourusername.pythonanywhere.com ✅
+
+
+STEP 6: Test All Routes of App 2
+For App 2, update the WSGI path to app2 and test:
+URLOutputyourusername.pythonanywhere.com/Student Web Appyourusername.pythonanywhere.com/infoStudent Informationyourusername.pythonanywhere.com/hello/JohnHello, John!
+
+STEP 7: Run App Locally (Shows GAE Launcher Concept)
+In Bash console, run the app directly:
+bashcd ~/app1
+python main.py
+You'll see:
+* Running on http://127.0.0.1:5000
+* Press CTRL+C to quit
+This is exactly what GAE Launcher used to do — run the app locally before deploying. ✅

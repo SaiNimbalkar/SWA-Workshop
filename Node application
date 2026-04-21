@@ -1,0 +1,131 @@
+project/
+ ├── app.js
+ ├── package.json
+ └── public/
+      ├── index.html
+      ├── style.css
+      └── script.js
+
+Backend Code (app.js)
+const express = require('express');
+const app = express();
+const path = require('path');
+
+// Middleware to serve static files
+app.use(express.static(path.join(__dirname, 'public')));
+
+// API route
+app.get('/api/message', (req, res) => {
+    const name = req.query.name || "User";
+    res.json({ message: `Hello ${name}, welcome to AWS Cloud 🚀` });
+});
+
+// Start server
+const PORT = 3000;
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
+
+package.json
+{
+  "name": "cloud-app",
+  "version": "1.0.0",
+  "description": "Simple Node.js Web App",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
+
+Frontend (index.html)
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cloud App</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <h1>🌐 AWS Cloud App</h1>
+
+    <input type="text" id="name" placeholder="Enter your name">
+    <button onclick="sendData()">Submit</button>
+
+    <p id="output"></p>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
+4. CSS (style.css)
+body {
+    font-family: Arial;
+    text-align: center;
+    margin-top: 50px;
+}
+
+h1 {
+    color: #2c3e50;
+}
+
+input {
+    padding: 10px;
+    margin: 10px;
+}
+
+button {
+    padding: 10px 20px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+}
+🔷 5. JavaScript (script.js)
+function sendData() {
+    const name = document.getElementById("name").value;
+
+    fetch(`/api/message?name=${name}`)
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById("output").innerText = data.message;
+        });
+}
+
+
+Launch EC2
+OS: Amazon Linux
+Type: t2.micro
+Allow:
+✅ SSH (22)
+✅ HTTP (80)
+⚠️ Custom TCP (3000) ← for Node.js
+
+👉 Launch & Connect
+PART 2: Install Node.js
+sudo yum update -y
+sudo yum install nodejs -y
+
+Check:
+
+node -v
+npm -v
+🔷 PART 3: Upload Your Project
+
+PART 4: Install Dependencies
+
+Inside project folder:
+
+npm install
+🔷 PART 5: Run Node.js App
+node app.js
+
+👉 You should see:
+
+Server running on port 3000
+🔷 PART 6: Access Application
+
+Open browser:
+
+http://<your-public-ip>:3000

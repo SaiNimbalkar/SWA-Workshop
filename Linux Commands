@@ -1,0 +1,38 @@
+Task 1: Directory Operations
+pwd
+ls
+mkdir cloudlab
+cd cloudlab
+
+Task 2: File Operations
+touch file1.txt
+nano file1.txt
+View File
+cat file1.txt
+Copy & Rename
+cp file1.txt file2.txt
+mv file2.txt renamed.txt
+ls
+❌ Delete
+rm renamed.txt
+Permissions
+chmod 777 file1.txt
+Networking
+ip a
+ping google.com
+
+Step 3: Install Apache Server
+
+Connect to EC2 and run:
+
+sudo yum update -y
+sudo yum install httpd -y
+🔹 Step 4: Start Web Server
+sudo systemctl start httpd
+sudo systemctl enable httpd
+🔹 Step 5: Test Locally (VERY IMPORTANT)
+curl localhost
+
+👉 If you see HTML output → server is working ✅
+
+🔹 Step 6: Now Try Public IP

@@ -1,0 +1,110 @@
+Practical 9: Deploy Static Website using Docker 🐳
+
+📁 Project Folder Structure
+docker-website/
+├── Dockerfile
+├── index.html
+
+📄 File 1: index.html
+html<!DOCTYPE html>
+<html>
+<head>
+  <title>Docker Website</title>
+  <style>
+    body { font-family: Arial; text-align: center; margin-top: 100px; }
+    h1 { color: #2496ED; }
+  </style>
+</head>
+<body>
+  <h1>🐳 My Static Website Deployed using Docker!</h1>
+  <p>Running inside an Nginx container.</p>
+</body>
+</html>
+
+📄 File 2: Dockerfile
+dockerfile# Use official Nginx image as base
+FROM nginx:latest
+
+# Remove default nginx page
+RUN rm -rf /usr/share/nginx/html/*
+
+# Copy our website files to nginx folder
+COPY index.html /usr/share/nginx/html/index.html
+
+# Expose port 80
+EXPOSE 80
+
+# Start nginx
+CMD ["nginx", "-g", "daemon off;"]
+
+🖥️ Steps to Run
+Step 1: Install Docker
+Download from:
+https://www.docker.com/products/docker-desktop/
+
+Download Docker Desktop for Windows
+Double click installer → Next → Install → Finish
+Restart your laptop
+
+Step 2: Verify Docker is Installed
+bashdocker --version
+✅ Should show:
+Docker version 24.x.x
+Step 3: Create Project Folder
+bashmkdir docker-website
+cd docker-website
+notepad index.html
+notepad Dockerfile
+Paste respective code and save each file.
+Step 4: Build Docker Image
+bashdocker build -t my-static-website .
+✅ Should show:
+Successfully built xxxxxxxx
+Successfully tagged my-static-website:latest
+Step 5: Run the Container
+bashdocker run -d -p 8080:80 --name my-website my-static-website
+
+
+If Docker Desktop Won't Open:
+Check if Virtualization is enabled:
+
+Press Ctrl + Shift + Esc → Task Manager
+Click Performance tab
+Click CPU
+Check Virtualization: Enabled ✅
+
+If it says Disabled → tell me, we'll fix it in BIOS.
+
+ Use Notepad Properly
+bashnotepad Dockerfile
+
+Paste the Dockerfile code
+Click File → Save As
+Change Save as type to All Files
+Name it exactly Dockerfile (no .txt extension!)
+Click Save
+
+
+⚠️ Most common mistake — Notepad saves it as Dockerfile.txt instead of Dockerfile!
+FlagMeaning-dRun in background-p 8080:80Map laptop port 8080 to container port 80--nameGive container a name
+Step 6: Open Website in Browser
+http://localhost:8080
+🎉 You should see your website!
+Show File Extensions in Windows
+
+Open File Explorer.
+Go to the View tab (Windows 10) or View → Show (Windows 11).
+Uncheck “Hide extensions for known file types.”
+Click OK or close the settings.
+Now you’ll see the real file names, including .txt if it’s there.
+
+🔹 Step 2 — Rename the File Properly
+
+Find your Dockerfile.txt.
+Right-click → Rename.
+Delete the .txt part so it’s just:
+
+Copy code
+Dockerfile
+Press Enter — Windows will warn you about changing the extension. Click Yes.
+🔹 Step 3 — Verify

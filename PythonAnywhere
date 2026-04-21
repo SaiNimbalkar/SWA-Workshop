@@ -1,0 +1,110 @@
+
+## STEP 1: Create Free Account
+
+1. Go to **[https://www.pythonanywhere.com](https://www.pythonanywhere.com)**
+2. Click **"Start running Python online in less than a minute"**
+3. Click **Create a Beginner Account**
+4. Fill in:
+   - Username: anything (e.g. `mycloudapp`)
+   - Email: your Gmail
+   - Password: anything
+5. Click **Register** — no credit card needed ✅
+
+---
+
+## STEP 2: Open the Web Terminal (Like Cloud Shell)
+
+1. After login, click the **"Bash"** button under the Consoles section
+2. A terminal opens in the browser — same as GCP Cloud Shell
+
+---
+
+## STEP 3: Create Hello World App
+
+Type these commands one by one:
+
+```bash
+mkdir hello-world
+cd hello-world
+```
+
+```bash
+cat > hello.py << 'EOF'
+def application(environ, start_response):
+    start_response('200 OK', [('Content-Type', 'text/html')])
+    return [b'<h1>Hello World!</h1><p>My first Cloud Web App!</p>']
+EOF
+```
+
+---
+
+## STEP 4: Deploy as a Web App
+
+1. Go to the **Web** tab (top menu)
+2. Click **"Add a new web app"**
+3. Click **Next**
+4. Choose **Manual Configuration**
+5. Choose **Python 3.10**
+6. Click **Next**
+
+Now set the WSGI file:
+
+1. Click on the **WSGI configuration file** link shown on the page
+2. **Delete everything** in the file
+3. Paste this:
+
+```python
+import sys
+sys.path.insert(0, '/home/yourusername/hello-world')
+from hello import application
+```
+
+> ⚠️ Replace `yourusername` with your actual PythonAnywhere username
+
+4. Click **Save**
+5. Go back and click **Reload** (green button)
+
+---
+
+## STEP 5: View Output
+
+1. Your app URL will be shown as:
+`yourusername.pythonanywhere.com`
+2. Open it in browser
+3. You will see: **Hello World!** ✅
+
+---
+
+## STEP 6: Create Second Simple App
+
+1. Go back to **Bash console**
+2. Run:
+
+```bash
+cd ~
+mkdir web-app2
+cd web-app2
+```
+
+```bash
+cat > hello2.py << 'EOF'
+def application(environ, start_response):
+    path = environ.get('PATH_INFO', '/')
+    
+    if path == '/':
+        body = b'<h1>Welcome to My Web App</h1>'
+    elif path == '/about':
+        body = b'<h1>About Page</h1><p>Simple cloud web app.</p>'
+    else:
+        body = b'<h1>Hello from Cloud!</h1>'
+    
+    start_response('200 OK', [('Content-Type', 'text/html')])
+    return [body]
+EOF
+```
+
+3. Go to **Web tab → WSGI file → update** the path to `web-app2` and `hello2`
+4. Click **Reload**
+5. Test in browser ✅
+
+---d and I'll guide you step by step! 🙂

@@ -1,0 +1,101 @@
+Step 1: Install Terraform
+Download from https://developer.hashicorp.com/terraform/downloads and install it.
+Verify:
+bashterraform --version
+
+Step 1: Download AWS CLI
+Click this direct download link:
+https://awscli.amazonaws.com/AWSCLIV2.msi
+Or google "AWS CLI download" → first result
+Step 2: Install It
+Double click the downloaded AWSCLIV2.msi file
+Click Next → Next → Install
+Click Finish
+
+✅ This is a normal installer — just like installing any software!
+
+Step 3: Test Installation
+Close CMD and open a fresh new CMD, then type:
+bashaws --version
+Should show:
+aws-cli/2.x.x Python/3.x.x Windows/10
+
+terraform-ec2/
+├── main.tf
+├── variables.tf
+├── terraform.tfvars
+├── outputs.tf
+
+File 1: variables.tf (Input Variables)
+hclvariable "aws_region" {
+  description = "AWS Region to deploy EC2"
+  type        = string
+}
+
+variable "ami_id" {
+  description = "AMI ID for EC2 instance"
+  type        = string
+}
+
+variable "instance_type" {
+  description = "EC2 Instance Type"
+  type        = string
+}
+
+variable "instance_name" {
+  description = "Name tag for EC2 instance"
+  type        = string
+}
+
+📄 File 2: terraform.tfvars (Input Values)
+hclaws_region    = "ap-south-1"
+ami_id        = "ami-0f58b397bc5c1f2e8"
+instance_type = "t3.micro"
+instance_name = "MyTerraformEC2"
+
+💡 ami-0f58b397bc5c1f2e8 is Amazon Linux 2 for Mumbai region (ap-south-1)
+
+
+📄 File 3: main.tf (Main Configuration)
+hclprovider "aws" {
+  region = var.aws_region
+}
+
+resource "aws_instance" "my_ec2" {
+  ami           = var.ami_id
+  instance_type = var.instance_type
+
+  tags = {
+    Name = var.instance_name
+  }
+}
+
+📄 File 4: outputs.tf (Output Variables)
+hcloutput "instance_id" {
+  description = "The ID of the EC2 instance"
+  value       = aws_instance.my_ec2.id
+}
+
+output "public_ip" {
+  description = "Public IP of the EC2 instance"
+  value       = aws_instance.my_ec2.public_ip
+}
+
+output "instance_state" {
+  description = "State of the EC2 instance"
+  value       = aws_instance.my_ec2.instance_state
+}
+
+EXECUTION-
+Then Run Configure
+bashaws configure
+AWS Access Key ID: YOUR_KEY
+AWS Secret Access Key: YOUR_SECRET
+Default region name: ap-south-1
+Default output format: json
+
+After That Run Terraform:
+bashcd Desktop\terraform-ec2
+terraform init
+terraform plan
+terraform apply
