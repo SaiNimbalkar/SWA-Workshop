@@ -1,73 +1,132 @@
-Quickest Setup Plan:
-Step 1: Launch EC2 Instance
+Step 1: Setup Environment
 
-Go to AWS Console → EC2 → Launch Instance
-Choose Ubuntu Server 22.04
-Instance type: t2.micro (free tier)
-Create/download a Key Pair → save the .pem file
-Under Security Group → allow:
+You need 2 systems:
 
-✅ SSH (port 22)
-✅ HTTP (port 80)
+Option A (Recommended for you)
+Control Node → Your system (Ubuntu / WSL / VM)
+Target Node → EC2 instance (AWS) OR another VM
+Step 2: Install Ansible (Control Node)
 
+Open terminal:
 
-Click Launch
-
-Step 2: Install Ansible on Your Laptop
-Since you're on Windows, use WSL (Windows Subsystem for Linux):
-bash# First enable WSL - run in PowerShell as Admin
-wsl --install
-After restart, open Ubuntu from Start Menu, then:
-bashsudo apt update
+sudo apt update
 sudo apt install ansible -y
+
+Check installation:
+
 ansible --version
-Step 3: Copy .pem key to WSL
-bashcp /mnt/c/Users/devik/Downloads/your-key.pem ~/.ssh/
-chmod 400 ~/.ssh/your-key.pem
-Step 4: Update inventory.ini with EC2 IP
-ini[webservers]
-YOUR_EC2_PUBLIC_IP ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/your-key.pem
-Step 5: Run Playbook
-bashansible-playbook playbook.yml
-Step 6: Verify
-Open browser:
-http://YOUR_EC2_PUBLIC_IP
+Step 3: Setup Target Server
 
-Project Folder Structure
-ansible-nginx/
-├── inventory.ini        # Target servers list
-├── playbook.yml         # Main playbook
-├── ansible.cfg          # Ansible configuration
+If using AWS EC2 (recommended for marks):
 
-📄 File 1: inventory.ini (Target Servers)
-ini[webservers]
-192.168.1.10 ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/id_rsa
+Launch Ubuntu EC2 instance
+Allow port 22 (SSH) and port 80 (HTTP)
 
-[webservers:vars]
-ansible_python_interpreter=/usr/bin/python3
+Connect:
 
-💡 Replace 192.168.1.10 with your target server's IP address
+ssh ubuntu@<your-ec2-ip>
+Fix Step-by-Step (Do EXACTLY this)
+Step 1: Locate Your .pem File
 
+Find where your key is downloaded
+Example:
 
-📄 File 2: ansible.cfg (Configuration)
-ini[defaults]
-inventory = inventory.ini
-remote_user = ubuntu
-host_key_checking = False
+Downloads → ansible-key.pem
 
-📄 File 3: playbook.yml (Main Playbook)
-yaml---
-- name: Install and Configure Nginx on Target Servers
+Then go to that folder:
+
+cd C:\Users\hp\Downloads
+
+Check:
+
+dir
+
+You should see:
+
+ansible-key.pem
+
+Fix (Correct Command)
+
+Use this instead:
+
+icacls ansible-key.pem /grant:r "$env:USERNAME:R"
+Full Correct Steps (Clean)
+
+You are already in the correct folder:
+
+cd C:\Users\hp\Downloads
+
+Now run:
+
+icacls ansible-key.pem /inheritance:r
+icacls ansible-key.pem /grant:r "$env:USERNAME:R"
+Now Connect (IMPORTANT)
+ssh -i ansible-key.pem ubuntu@15.206.80.9
+
+Step 1: Exit EC2 (Go back to Control Node)
+
+Type:
+
+exit
+
+You should return to:
+
+PS C:\Users\hp\Downloads>
+Step 2: Make Sure You Are Using WSL (IMPORTANT)
+
+Ansible does NOT run natively on Windows PowerShell
+You must use:
+
+Ubuntu (WSL) OR
+Linux VM
+
+Open WSL:
+
+wsl
+Step 3: Install Ansible (in WSL)
+sudo apt update
+sudo apt install ansible -y
+
+Check:
+
+ansible --version
+Step 4: Move Your Key File to WSL
+
+Your key is here:
+
+C:\Users\hp\Downloads\ansible-key.pem
+
+In WSL:
+
+cp /mnt/c/Users/hp/Downloads/ansible-key.pem ~/
+chmod 400 ansible-key.pem
+Step 5: Create Inventory File
+nano hosts
+
+Paste:
+
+[webservers]
+15.206.80.9 ansible_user=ubuntu ansible_ssh_private_key_file=~/ansible-key.pem
+
+Save: CTRL + X → Y → ENTER
+
+Step 6: Test Connection (VERY IMPORTANT)
+ansible -i hosts webservers -m ping
+
+Expected:
+
+SUCCESS => pong
+Step 7: Create Playbook
+nano install_nginx.yml
+
+Paste:
+
+- name: Install Nginx Web Server
   hosts: webservers
-  become: yes        # Run as sudo/root
-
-  vars:
-    nginx_port: 80
-    nginx_message: "Welcome to My Ansible Nginx Server!"
+  become: yes
 
   tasks:
-
-    - name: Update apt package manager
+    - name: Update apt repository
       apt:
         update_cache: yes
 
@@ -81,54 +140,19 @@ yaml---
         name: nginx
         state: started
         enabled: yes
+Step 8: Run Playbook
+ansible-playbook -i hosts install_nginx.yml
 
-    - name: Create custom index.html
-      copy:
-        content: "<h1>{{ nginx_message }}</h1>"
-        dest: /var/www/html/index.html
+You will see tasks like:
 
-    - name: Verify Nginx is running
-      command: systemctl status nginx
-      register: nginx_status
+TASK [Install Nginx]
+changed: [15.206.80.9]
+Step 9: Verify Nginx
 
-    - name: Print Nginx status
-      debug:
-        msg: "{{ nginx_status.stdout }}"
+Open browser:
 
-🖥️ Steps to Run
-Step 1: Install Ansible (on Ubuntu/Linux)
-bashsudo apt update
-sudo apt install ansible -y
-ansible --version
-Step 2: Create project folder
-bashmkdir ansible-nginx
-cd ansible-nginx
-Step 3: Create all 3 files
-bashnano inventory.ini
-nano ansible.cfg
-nano playbook.yml
-Paste respective code in each file, then Ctrl+X → Y → Enter to save
-Step 4: Test Connection to Target Server
-bashansible webservers -m ping
-✅ Should show:
-192.168.1.10 | SUCCESS => {
-    "ping": "pong"
-}
-Step 5: Run the Playbook
-bashansible-playbook playbook.yml
-✅ Expected Output:
-PLAY [Install and Configure Nginx on Target Servers] ***
+http://15.206.80.9
 
-TASK [Update apt package manager] *** ok
-TASK [Install Nginx] ***              ok
-TASK [Start Nginx service] ***        ok
-TASK [Create custom index.html] ***   ok
-TASK [Verify Nginx is running] ***    ok
-
-PLAY RECAP ***
-192.168.1.10 : ok=5  changed=4  failed=0
-Step 6: Verify in Browser
-Open browser and go to:
-http://192.168.1.10
-You should see:
-Welcome to My Ansible Nginx Server!
+Step 10: Final Check via SSH
+ssh -i ansible-key.pem ubuntu@15.206.80.9
+sudo systemctl status nginx
